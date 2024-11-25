@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Customization Clock Game</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #e9ecef;
+    }
+
+    header {
+      width: 100%;
+      text-align: center;
+      padding: 20px 0;
+      background-color: #000000;
+      color: white;
+      font-family: 'Georgia', serif;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .main-container {
+      display: flex;
+      flex-grow: 1;
+    }
+
+    .left, .right {
+      width: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .left {
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+
+    .right {
+      background-color: #4caf50;
+      color: white;
+      position: relative;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      margin: 10px 0;
+    }
+
+    #question {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    input, button {
+      font-size: 1rem;
+      padding: 10px;
+      margin-top: 10px;
+      width: 80%;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .analog-clock {
+      width: 200px;
+      height: 200px;
+      border: 5px solid white;
+      border-radius: 50%;
+      position: relative;
+      background-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hand {
+      position: absolute;
+      width: 50%;
+      height: 4px;
+      background-color: black;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0 50%;
+      transform: rotate(90deg); 
+    }
+
+    .hand.minute {
+      height: 3px;
+    }
+
+    .hand.second {
+      height: 2px;
+      background-color: red;
+    }
+
+    .clock-numbers {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .clock-numbers span {
+      position: absolute;
+      text-align: center;
+      transform-origin: center;
+      font-size: 1rem;
+      font-weight: bold;
+      color: black;
+    }
+
+    #digitalClock {
+      font-size: 2rem;
+      text-align: center;
+      background-color: transparent;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Interactive Customization Clock Game
+  </header>
+  <div class="main-container">
+    <div class="left">
+      <h2 id="questionNumber">Question 1:</h2>
+      <h2 id="question">Loading question...</h2>
+      <input type="text" id="answer" placeholder="Enter your answer">
+      <button onclick="validateAnswer()">Submit</button>
+    </div>
+    <div class="right" id="displayArea">
+      <div id="clockContainer" style="display: none;">
+        <div id="digitalClock" style="display: none;">00:00:00</div>
+        <div id="analogClock" class="analog-clock" style="display: none;">
+          <div class="hand hour" id="hourHand"></div>
+          <div class="hand minute" id="minuteHand"></div>
+          <div class="hand second" id="secondHand"></div>
+          <div class="clock-numbers" id="clockNumbers"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const questions = [
+      { question: "What is 2 + 2?", answer: "4", action: "showClock" },
+      { question: "Is Earth a planet? (yes or no)", answer: "yes", action: "chooseClockType" },
+      { question: "What is the color of the sky on a clear day?", answer: "blue", action: "changeBackground" },
+      { question: "What is 5 + 0?", answer: "5", action: "changeClockColor" }
+    ];
+
+    const easyQuestions = [
+      { question: "What is 1 + 1?", answer: "2" },
+      { question: "What comes after 2?", answer: "3" },
+      { question: "What is the color of grass?", answer: "green" }
+    ];
+
+    let currentQuestionIndex = 0;
+    let easyQuestionIndex = 0;
+
+    function loadQuestion() {
+      if (currentQuestionIndex < questions.length) {
+        document.getElementById("questionNumber").textContent = `Question ${currentQuestionIndex + 1}:`;
+        document.getElementById("question").textContent = questions[currentQuestionIndex].question;
+      } else {
+        document.getElementById("questionNumber").textContent = "Congratulations!";
+        document.getElementById("question").textContent = "You have completed all customizations!";
+        document.getElementById("answer").style.display = "none";
+        document.querySelector("button").style.display = "none";
+      }
+    }
+
+    function validateAnswer() {
+      const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+      const correctAnswer = questions[currentQuestionIndex].answer.toLowerCase();
+
+      if (userAnswer === correctAnswer) {
+        const action = questions[currentQuestionIndex].action;
+        performAction(action);
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        alert("Incorrect! Here's an easier question.");
+        presentEasyQuestion();
+      }
+
+      document.getElementById("answer").value = "";
+    }
+
+    function presentEasyQuestion() {
+      if (easyQuestionIndex >= easyQuestions.length) easyQuestionIndex = 0;
+      const easyQuestion = easyQuestions[easyQuestionIndex];
+      document.getElementById("questionNumber").textContent = "Easy Question:";
+      document.getElementById("question").textContent = easyQuestion.question;
+      const validate = () => {
+        const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+        if (userAnswer === easyQuestion.answer.toLowerCase()) {
+          alert("Correct! Try the original question again.");
+          document.getElementById("answer").value = "";
+          loadQuestion();
+        } else {
+          alert("Still incorrect. Try again!");
+        }
+      };
+      document.querySelector("button").onclick = validate;
+      easyQuestionIndex++;
+    }
+
+    function performAction(action) {
+      const displayArea = document.getElementById("displayArea");
+      if (action === "showClock") {
+        document.getElementById("clockContainer").style.display = "block";
+        document.getElementById("digitalClock").style.display = "block";
+        startDigitalClock();
+      } else if (action === "chooseClockType") {
+        const choice = prompt("Choose clock type: 'digital' or 'analog'").toLowerCase();
+        if (choice === "digital") {
+          document.getElementById("digitalClock").style.display = "block";
+          document.getElementById("analogClock").style.display = "none";
+        } else if (choice === "analog") {
+          document.getElementById("analogClock").style.display = "block";
+          document.getElementById("digitalClock").style.display = "none";
+          startAnalogClock();
+          addClockNumbers("english");
+        }
+      } else if (action === "changeBackground") {
+        const color = prompt("Enter a color for the background (e.g., 'blue', '#ff0000'):");
+        displayArea.style.backgroundColor = color || "#4caf50";
+      } else if (action === "changeClockColor") {
+        const color = prompt("Enter a color for the clock hands and numbers (e.g., 'red', '#00ff00'):");
+        document.querySelectorAll(".hand").forEach(hand => hand.style.backgroundColor = color || "black");
+        document.querySelectorAll(".clock-numbers span").forEach(span => span.style.color = color || "black");
+        document.getElementById("digitalClock").style.color = color || "black";
+      }
+    }
+
+    function startDigitalClock() {
+      function updateDigitalClock() {
+        const now = new Date();
+        document.getElementById("digitalClock").textContent = now.toLocaleTimeString();
+      }
+      updateDigitalClock();
+      setInterval(updateDigitalClock, 1000);
+    }
+
+    function startAnalogClock() {
+      function updateAnalogClock() {
+        const now = new Date();
+        const seconds = now.getSeconds();
+        const minutes = now.getMinutes();
+        const hours = now.getHours();
+
+        document.getElementById("hourHand").style.transform = `rotate(${hours * 30 + minutes / 2 - 90}deg)`;
+        document.getElementById("minuteHand").style.transform = `rotate(${minutes * 6 - 90}deg)`;
+        document.getElementById("secondHand").style.transform = `rotate(${seconds * 6 - 90}deg)`;
+      }
+      updateAnalogClock();
+      setInterval(updateAnalogClock, 1000);
+    }
+
+    function addClockNumbers(type) {
+      const clockNumbers = document.getElementById("clockNumbers");
+      clockNumbers.innerHTML = "";
+      const numbers = type === "roman" 
+        ? ["IX", "X", "XI","XII","I", "II", "III", "IV", "V", "VI", "VII", "VIII",  ]
+        : ["9", "10", "11","12", "1", "2", "3", "4", "5", "6", "7", "8"];  
+      numbers.forEach((num, i) => {
+        const span = document.createElement("span");
+        span.textContent = num;
+        span.style.top = `${50 - Math.cos((i - 3) * (Math.PI / 6)) * 40}%`;
+        span.style.left = `${50 + Math.sin((i - 3) * (Math.PI / 6)) * 40}%`;
+        clockNumbers.appendChild(span);
+      });
+    }
+
+    window.onload = loadQuestion;
+  </script>
+</body>
+</html>
